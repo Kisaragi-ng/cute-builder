@@ -1,0 +1,49 @@
+<script>
+    (function () {
+        var image = document.querySelector('img[alt="UNDEFINED"]');
+        var anno = Annotorious.init({
+            image,
+            locale: 'auto',
+            allowEmpty: true,
+            drawOnSingleClick: false,
+            widgets: [
+                'COMMENT',
+                {
+                    widget: 'TAG', vocabulary: [
+                        'check cleaning',
+                        'check font kerning',
+                        'check font name',
+                        'crossbar i',
+                        'font style: bold',
+                        'font style: italic',
+                        'grammar mistake',
+                        'missing word',
+                        'missing punctuation',
+                        'move down',
+                        'move up',
+                        'rogue space',
+                        'shift left',
+                        'shift right',
+                        'text shape',
+                        'typo'
+                    ]
+                }
+            ]
+        });
+        var firebaseConfig = {
+            apiKey: "AIzaSyDkreYOqdCcfHGFclxBbXVOrLKdvJBqGlQ",
+            authDomain: "cutie-annotation.firebaseapp.com",
+            databaseURL: "https://cutie-annotation-default-rtdb.firebaseio.com/",
+            projectId: "cutie-annotation",
+            storageBucket: "cutie-annotation.appspot.com",
+            messagingSenderId: "836097674850",
+            appId: "1:836097674850:web:288b16da72e5142678cb3b"
+        };
+        var settings = {
+            annotationTarget: image.src,
+            collectionName: 'annotations'
+        }
+
+        recogito.FirebaseStorage(anno, firebaseConfig, settings);
+    })();
+</script>
