@@ -1,0 +1,77 @@
+<link href="https://fonts.googleapis.com/css?family=Lato&display=swap" rel="stylesheet">
+<script src="/src/js/annotorious.min.js" type="text/javascript"></script>
+<link rel="stylesheet" href="/src/js/annotorious.css">
+<script>
+    window.onload = function () {
+        anno = Annotorious.init({
+            image: document.querySelector('img[alt="demo-01"]'),
+            locale: 'auto',
+            allowEmpty: true,
+            drawOnSingleClick: true,
+            widgets: [
+                { widget: 'COMMENT' },
+                {
+                    widget: 'TAG', vocabulary: [
+                        'check cleaning',
+                        'check font kerning',
+                        'check font name',
+                        'crossbar i',
+                        'font style: bold',
+                        'font style: italic',
+                        'grammar mistake',
+                        'missing word',
+                        'missing punctuation',
+                        'move down',
+                        'move up',
+                        'rogue space',
+                        'shift left',
+                        'shift right',
+                        'text shape',
+                        'typo'
+                    ]
+                }
+            ]
+        });
+
+        anno.setAuthInfo({
+            id: 'Cutie',
+            displayName: 'Cutie'
+        });
+
+        anno.on('selectAnnotation', function (a, shape) {
+            console.log('selected');
+        });
+
+        anno.on('cancelSelected', function (a) {
+            console.log('cancel');
+        });
+
+        anno.on('changeSelected', function (selected, previous) {
+            console.log('changed from', previous, 'to', selected);
+        });
+
+        anno.on('createAnnotation', function (annotation) {
+            console.log('created', annotation);
+        });
+
+        anno.on('updateAnnotation', function (annotation, previous) {
+            console.log('updated', previous, 'with', annotation);
+        });
+
+        anno.on('clickAnnotation', function (annotation, shape) {
+            console.log('clicked', annotation);
+        });
+
+        anno.on('deleteAnnotation', function (annotation) {
+            console.log('deleted', annotation);
+        });
+
+        anno.on('mouseEnterAnnotation', function (annotation) {
+            console.log('enter', annotation);
+        });
+
+        anno.on('mouseLeaveAnnotation', function (annotation) {
+            console.log('leave', annotation);
+        });
+    }
+</script>
