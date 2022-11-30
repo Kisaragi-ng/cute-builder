@@ -89,8 +89,8 @@ for archive in *.zip; do
             echo "---"
             echo "{{< inject$series$chapter$page_count >}}"
             echo "![$series-$(basename -s .png "$files")]($(basename "$files"))"
-            echo "{{< button relref="/$((page_count - 1))" >}}Prev{{< /button >}}"
-            echo "{{< button relref="/$((page_count + 1))" >}}Next{{< /button >}}"
+            echo "{{< button relref=""/pr/$series/chapter-$chapter/$((page_count - 1))"" >}}Prev{{< /button >}}"
+            echo "{{< button relref=""/pr/$series/chapter-$chapter/$((page_count + 1))"" >}}Next{{< /button >}}"
         } >>"$project_folder"/content/pr/"$series"/chapter-"$chapter"/"$page_count"/_index.md
 
         # move files
@@ -103,6 +103,8 @@ for archive in *.zip; do
         # iterate page count for next loop
         ((page_count++))
     done
+    # reset counter in case script loading next chapter
+    page_count=1
 
     # replace first and last page navigation with valid value
     readarray -d '' array1 < <(printf '%s\0' $project_folder/content/pr/"$series"/chapter-"$chapter"/*/*.md | sort -zV)
@@ -111,7 +113,7 @@ for archive in *.zip; do
         echo "$indexes" >>/tmp/test.tmp
     done
     logf reading "$(grep -c index /tmp/test.tmp)" lines, fixing first and last _index.md
-    sed -i "s/relref\=\/0/relref\=\/1/g" "${array1[0]}"
+    sed -i "s/\/0/\/1/g" "${array1[0]}"
     sed -i "s/$(($(grep -c index /tmp/test.tmp) + 1))/$(grep -c index /tmp/test.tmp)/g" "${array1[$(($(grep -c index /tmp/test.tmp) - 1))]}"
 
     # cleaning up
