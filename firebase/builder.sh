@@ -48,11 +48,6 @@ for archive in *.zip; do
         logf removing "$project_folder/content/pr/$series/chapter-$chapter"
         rm -rf "$project_folder/content/pr/$series/chapter-$chapter"
     fi
-    # remove script inject if exist
-    if [ -f "$project_folder/themes/hugo-book/layouts/shortcodes/inject$series$chapter.html" ]; then
-        logf removing "$project_folder/themes/hugo-book/layouts/shortcodes/inject$series$chapter.html"
-        rm -rf "$project_folder/themes/hugo-book/layouts/shortcodes/inject$series$chapter.html"
-    fi
 
     # create chapter directory
     logf creating directory "$project_folder/content/pr/$series/chapter-$chapter"
@@ -65,31 +60,37 @@ for archive in *.zip; do
     readarray -d '' array0 < <(printf '%s\0' temp/*.png | sort -zV)
     for files in "${array0[@]}"; do
         # create folder for each files
-        mkdir -p "$project_folder"/content/pr/"$series"/chapter-"$chapter"/"$(basename -s .png "$files")"
+        mkdir -p "$project_folder"/content/pr/"$series"/chapter-"$chapter"/"$page_count"
 
-        # create anno inject script
+        # create anno inject script;
+        # remove script inject if exist
+        if [ -f "$project_folder/themes/hugo-book/layouts/shortcodes/inject$series$chapter$page_count.html" ]; then
+            logf removing "shortcodes/inject$series$chapter$page_count.html"
+            rm -rf "$project_folder/themes/hugo-book/layouts/shortcodes/inject$series$chapter$page_count.html"
+        fi
+        logf creating "shortcodes/inject$series$chapter$page_count.html"
         {
             sed "s/UNDEFINED/$series-$(basename -s .png "$files")\./g" "$project_folder/content/src/template/firebase.tpl"
-        } >>"$project_folder/themes/hugo-book/layouts/shortcodes/inject$series$chapter.html"
+        } >>"$project_folder/themes/hugo-book/layouts/shortcodes/inject$series$chapter$page_count.html"
 
         # create index for each files
-        logf current page_count value is $page_count, creating post entries for "$series"/"$chapter"/"$(basename -s .png "$files")"
+        logf current page_count value is $page_count, creating post entries for "$series"/"$chapter"/"$(basename "$files")"
         {
             echo "---"
             echo "bookCollapseSection: false"
-            echo "weight: $((page_count + 10))"
+            echo "weight: $page_count"0
             echo "---"
-            echo "{{< inject$series$chapter >}}"
+            echo "{{< inject$series$chapter$page_count >}}"
             echo "![$series-$(basename -s .png "$files")]($(basename "$files"))"
             echo "{{< button relref="/$((page_count - 1))" >}}Prev{{< /button >}}"
             echo "{{< button relref="/$((page_count + 1))" >}}Next{{< /button >}}"
-        } >>"$project_folder"/content/pr/"$series"/chapter-"$chapter"/"$(basename -s .png "$files")/_index.md"
+        } >>"$project_folder"/content/pr/"$series"/chapter-"$chapter"/"$page_count"/_index.md
 
         # move files
         if [[ $(du "$files" | awk '{ print $1 }') -gt 1024 ]]; then
-            pngquant --quality=80 --force --strip "$files" --output "$project_folder"/content/pr/"$series"/chapter-"$chapter"/"$(basename -s .png "$files")/$(basename "$files")"
+            pngquant --quality=80 --force --strip "$files" --output "$project_folder"/content/pr/"$series"/chapter-"$chapter"/"$page_count"/"$(basename "$files")"
         else
-            mv "$files" "$project_folder"/content/pr/"$series"/chapter-"$chapter"/"$(basename -s .png "$files")"
+            mv "$files" "$project_folder"/content/pr/"$series"/chapter-"$chapter"/"$page_count"
         fi
 
         # iterate page count for next loop
