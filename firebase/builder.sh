@@ -52,9 +52,16 @@ for archive in *.zip; do
     # create chapter directory
     logf creating directory "$project_folder/content/pr/$series/chapter-$chapter"
     mkdir -p "$project_folder"/content/pr/"$series"/chapter-"$chapter"
-    # create empty index for series
-    logf creating empty index "$project_folder/content/pr/$series/_index.md"
+    # create empty index for series and chapter
+    logf creating empty index for "/pr/$series"
     touch "$project_folder/content/pr/$series/_index.md"
+    logf creating bookCollapseSection for chapter-"$chapter"
+    {
+        echo "---"
+        echo "bookCollapseSection: true"
+        echo "weight: $chapter"0
+        echo "---"
+    } >>"$project_folder/content/pr/$series/chapter-$chapter/_index.md"
 
     # create post entries
     readarray -d '' array0 < <(printf '%s\0' temp/*.png | sort -zV)
@@ -90,12 +97,22 @@ for archive in *.zip; do
         if [[ $(du "$files" | awk '{ print $1 }') -gt 1024 ]]; then
             pngquant --quality=80 --force --strip "$files" --output "$project_folder"/content/pr/"$series"/chapter-"$chapter"/"$page_count"/"$(basename "$files")"
         else
-            mv "$files" "$project_folder"/content/pr/"$series"/chapter-"$chapter"/"$page_count"
+            mv "$files" "$project_folder"/content/pr/"$series"/chapter-"$chapter"/"$page_count"/
         fi
 
         # iterate page count for next loop
         ((page_count++))
     done
+
+    # replace first and last page navigation with valid value
+    readarray -d '' array1 < <(printf '%s\0' $project_folder/content/pr/"$series"/chapter-"$chapter"/*/*.md | sort -zV)
+    [ ! -e /tmp/test.tmp ] || echo "" >/tmp/test.tmp
+    for indexes in "${array1[@]}"; do
+        echo "$indexes" >>/tmp/test.tmp
+    done
+    logf reading "$(grep -c index /tmp/test.tmp)" lines, fixing first and last _index.md
+    sed -i "s/relref\=\/0/relref\=\/1/g" "${array1[0]}"
+    sed -i "s/$(($(grep -c index /tmp/test.tmp) + 1))/$(grep -c index /tmp/test.tmp)/g" "${array1[$(($(grep -c index /tmp/test.tmp) - 1))]}"
 
     # cleaning up
     rm -r temp/
