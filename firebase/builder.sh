@@ -77,7 +77,7 @@ for archive in *.zip; do
         fi
         logf creating "shortcodes/inject$series$chapter$page_count.html"
         {
-            sed "s/UNDEFINED/$series-$(basename -s .png "$files")\./g" "$project_folder/content/src/template/firebase.tpl"
+            sed "s/UNDEFINED/$series-$(basename -s .png "$files")/g" "$project_folder/content/src/template/firebase.tpl"
         } >>"$project_folder/themes/hugo-book/layouts/shortcodes/inject$series$chapter$page_count.html"
 
         # create index for each files
